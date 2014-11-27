@@ -37,7 +37,7 @@ class FacilityModule;
 
 #define SHAREMIND_LIBFMODAPI_CXX_DEFINE_FACILITY_METHOD(ClassName,name,Name)\
     inline Facility const * find ## Name ## Facility( \
-            const char * const signature) \
+            char const * const signature) \
             const noexcept __attribute__ ((nonnull(2))) \
     { \
         assert(signature); \
@@ -52,7 +52,7 @@ class FacilityModule;
 
 #define SHAREMIND_LIBFMODAPI_CXX_DEFINE_CPTR_GETTERS(ClassName) \
     inline ::Sharemind ## ClassName * cPtr() noexcept { return m_c; } \
-    inline const ::Sharemind ## ClassName * cPtr() const noexcept { return m_c;}
+    inline ::Sharemind ## ClassName const * cPtr() const noexcept { return m_c;}
 
 
 /*******************************************************************************
@@ -62,9 +62,9 @@ class FacilityModule;
 namespace Detail {
 namespace libfmodapi {
 
-inline FacilityModuleApiError allocThrow(const FacilityModuleApiError e) {
+inline FacilityModuleApiError allocThrow(FacilityModuleApiError const e) {
     if (e == ::SHAREMIND_FACILITY_MODULE_API_OUT_OF_MEMORY)
-        throw ::std::bad_alloc();
+        throw ::std::bad_alloc{};
     return e;
 }
 
@@ -76,8 +76,8 @@ inline FacilityModuleApiError allocThrow(const FacilityModuleApiError e) {
   FacilityModuleApiError
 *******************************************************************************/
 
-inline const char * FacilityModuleApiError_toString(
-        const FacilityModuleApiError e) noexcept
+inline char const * FacilityModuleApiError_toString(
+        FacilityModuleApiError const e) noexcept
 { return ::SharemindFacilityModuleApiError_toString(e); }
 
 
@@ -91,50 +91,50 @@ class FacilityModuleApiExceptionBase: public ::std::exception {
 public: /* Methods: */
 
     inline FacilityModuleApiExceptionBase(
-            const FacilityModuleApiError errorCode,
-            const char * const errorStr)
-        : m_errorCode((assert(errorCode != ::SHAREMIND_FACILITY_MODULE_API_OK),
-                       errorCode))
-        , m_errorStr(errorStr
+            FacilityModuleApiError const errorCode,
+            char const * const errorStr)
+        : m_errorCode{(assert(errorCode != ::SHAREMIND_FACILITY_MODULE_API_OK),
+                       errorCode)}
+        , m_errorStr{errorStr
                      ? errorStr
-                     : FacilityModuleApiError_toString(errorCode))
+                     : FacilityModuleApiError_toString(errorCode)}
     {}
 
     inline FacilityModuleApiError code() const noexcept { return m_errorCode; }
-    inline const char * what() const noexcept override { return m_errorStr; }
+    inline char const * what() const noexcept override { return m_errorStr; }
 
 private: /* Fields: */
 
-    const FacilityModuleApiError m_errorCode;
-    const char * const m_errorStr;
+    FacilityModuleApiError const m_errorCode;
+    char const * const m_errorStr;
 
 }; /* class ModuleApiExceptionBase { */
 
 #define SHAREMIND_LIBFMODAPI_CXX_DEFINE_EXCEPTION(ClassName) \
     class Exception: public FacilityModuleApiExceptionBase { \
     public: /* Methods: */ \
-        inline Exception(const ::Sharemind ## ClassName & c) \
-            : FacilityModuleApiExceptionBase( \
+        inline Exception(::Sharemind ## ClassName const & c) \
+            : FacilityModuleApiExceptionBase{ \
                       Detail::libfmodapi::allocThrow( \
                               ::Sharemind ## ClassName ## _lastError(&c)), \
-                      ::Sharemind ## ClassName ## _lastErrorString(&c)) \
+                      ::Sharemind ## ClassName ## _lastErrorString(&c)} \
         {} \
-        inline Exception(const ClassName & c) \
-            : Exception(*(c.cPtr())) \
+        inline Exception(ClassName const & c) \
+            : Exception{*(c.cPtr())} \
         {} \
-        inline Exception(const FacilityModuleApiError error, \
-                         const char * const errorStr = nullptr) \
-            : FacilityModuleApiExceptionBase(error, errorStr) \
+        inline Exception(FacilityModuleApiError const error, \
+                         char const * const errorStr = nullptr) \
+            : FacilityModuleApiExceptionBase{error, errorStr} \
         {} \
-        inline Exception(const FacilityModuleApiError error, \
-                         const ::Sharemind ## ClassName & c) \
-            : FacilityModuleApiExceptionBase( \
+        inline Exception(FacilityModuleApiError const error, \
+                         ::Sharemind ## ClassName const & c) \
+            : FacilityModuleApiExceptionBase{ \
                     error, \
-                    ::Sharemind ## ClassName ## _lastErrorString(&c)) \
+                    ::Sharemind ## ClassName ## _lastErrorString(&c)} \
         {} \
-        inline Exception(const FacilityModuleApiError error, \
-                         const ClassName & c) \
-            : Exception(error, *(c.cPtr())) \
+        inline Exception(FacilityModuleApiError const error, \
+                         ClassName const & c) \
+            : Exception{error, *(c.cPtr())} \
         {} \
     }
 
@@ -152,13 +152,13 @@ public: /* Methods: */
 
     FacilityModule() = delete;
     FacilityModule(FacilityModule &&) = delete;
-    FacilityModule(const FacilityModule &) = delete;
+    FacilityModule(FacilityModule const &) = delete;
     FacilityModule & operator=(FacilityModule &&) = delete;
-    FacilityModule & operator=(const FacilityModule &) = delete;
+    FacilityModule & operator=(FacilityModule const &) = delete;
 
     FacilityModule(FacilityModuleApi & moduleApi,
-           const char * const filename,
-           const char * const configuration) __attribute__ ((nonnull(3)));
+           char const * const filename,
+           char const * const configuration) __attribute__ ((nonnull(3)));
 
     virtual inline ~FacilityModule() noexcept {
         if (m_c) {
@@ -183,9 +183,9 @@ public: /* Methods: */
     SHAREMIND_LIBFMODAPI_CXX_DEFINE_FACILITY_METHODS(FacilityModule)
 
     inline void init() {
-        const FacilityModuleApiError r = ::SharemindFacilityModule_init(m_c);
+        FacilityModuleApiError const r = ::SharemindFacilityModule_init(m_c);
         if (r != ::SHAREMIND_FACILITY_MODULE_API_OK)
-            throw Exception(r, *this);
+            throw Exception{r, *this};
     }
 
     inline void deinit() noexcept { ::SharemindFacilityModule_deinit(m_c); }
@@ -193,13 +193,13 @@ public: /* Methods: */
     inline bool isInitialized() const noexcept
     { return ::SharemindFacilityModule_isInitialized(m_c); }
 
-    inline const char * filename() const noexcept
+    inline char const * filename() const noexcept
     { return ::SharemindFacilityModule_filename(m_c); }
 
-    inline const char * name() const noexcept
+    inline char const * name() const noexcept
     { return ::SharemindFacilityModule_name(m_c); }
 
-    inline const char * conf() const noexcept
+    inline char const * conf() const noexcept
     { return ::SharemindFacilityModule_conf(m_c); }
 
     inline uint32_t apiVersionInUse() const noexcept
@@ -217,7 +217,9 @@ private: /* Fields: */
 
 class FacilityModuleApi {
 
-    friend FacilityModule::FacilityModule(FacilityModuleApi &, const char * const, const char * const);
+    friend FacilityModule::FacilityModule(FacilityModuleApi &,
+                                          char const * const,
+                                          char const * const);
 
 public: /* Types: */
 
@@ -226,22 +228,22 @@ public: /* Types: */
 public: /* Methods: */
 
     FacilityModuleApi(FacilityModuleApi &&) = delete;
-    FacilityModuleApi(const FacilityModuleApi &) = delete;
+    FacilityModuleApi(FacilityModuleApi const &) = delete;
     FacilityModuleApi & operator=(FacilityModuleApi &&) = delete;
-    FacilityModuleApi & operator=(const FacilityModuleApi &) = delete;
+    FacilityModuleApi & operator=(FacilityModuleApi const &) = delete;
 
     inline FacilityModuleApi()
-        : m_c([]{
+        : m_c{[]{
                   FacilityModuleApiError error;
-                  const char * errorStr;
+                  char const * errorStr;
                   ::SharemindFacilityModuleApi * const fmodapi =
                           ::SharemindFacilityModuleApi_new(&error,
                                                            &errorStr);
                   if (fmodapi)
                       return fmodapi;
-                  throw Exception(Detail::libfmodapi::allocThrow(error),
-                                  errorStr);
-              }())
+                  throw Exception{Detail::libfmodapi::allocThrow(error),
+                                  errorStr};
+              }()}
     {
         #define SHAREMIND_LIBFMODAPI_CXX_MODULEAPI_L1 \
             (void * m) noexcept { \
@@ -279,8 +281,8 @@ public: /* Methods: */
 
 private: /* Methods: */
 
-    ::SharemindFacilityModule & newModule(const char * const filename,
-                                  const char * const configuration)
+    ::SharemindFacilityModule & newModule(char const * const filename,
+                                          char const * const configuration)
             __attribute__((nonnull(2)))
     {
         assert(filename);
@@ -290,7 +292,7 @@ private: /* Methods: */
                                                        configuration);
         if (m)
             return *m;
-        throw Exception(*m_c);
+        throw Exception{*m_c};
     }
 
 private: /* Fields: */
@@ -305,9 +307,9 @@ private: /* Fields: */
 *******************************************************************************/
 
 inline FacilityModule::FacilityModule(FacilityModuleApi & moduleApi,
-                      const char * const filename,
-                      const char * const configuration)
-    : m_c(&moduleApi.newModule(filename, configuration))
+                                      char const * const filename,
+                                      char const * const configuration)
+    : m_c{&moduleApi.newModule(filename, configuration)}
 {
     try {
         #define SHAREMIND_LIBFMODAPI_CXX_MODULE_L1 \
