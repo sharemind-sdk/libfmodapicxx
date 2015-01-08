@@ -160,14 +160,6 @@ public: /* Methods: */
            char const * const filename,
            char const * const configuration) __attribute__ ((nonnull(3)));
 
-    virtual inline ~FacilityModule() noexcept {
-        if (m_c) {
-            if (::SharemindFacilityModule_tag(m_c) == this)
-                ::SharemindFacilityModule_releaseTag(m_c);
-            ::SharemindFacilityModule_free(m_c);
-        }
-    }
-
     SHAREMIND_LIBFMODAPI_CXX_DEFINE_CPTR_GETTERS(FacilityModule)
 
     inline FacilityModuleApi * facilityModuleApi() const noexcept {
@@ -204,6 +196,10 @@ public: /* Methods: */
 
     inline uint32_t apiVersionInUse() const noexcept
     { return ::SharemindFacilityModule_apiVersionInUse(m_c); }
+
+private: /* Methods: */
+
+    virtual inline ~FacilityModule() noexcept {}
 
 private: /* Fields: */
 
@@ -311,31 +307,21 @@ inline FacilityModule::FacilityModule(FacilityModuleApi & moduleApi,
                                       char const * const configuration)
     : m_c{&moduleApi.newModule(filename, configuration)}
 {
-    try {
-        #define SHAREMIND_LIBFMODAPI_CXX_MODULE_L1 \
-            (void * m) noexcept { \
-                FacilityModule * const module = \
-                        static_cast<FacilityModule *>(m); \
-                module->m_c = nullptr; \
-                delete module; \
-            }
-        #if SHAREMIND_GCCPR55015
-        struct F { static void f SHAREMIND_LIBFMODAPI_CXX_MODULE_L1 };
-        #endif
-        ::SharemindFacilityModule_setTagWithDestructor(
-                    m_c,
-                    this,
-                    #if SHAREMIND_GCCPR55015
-                    &F::f
-                    #else
-                    []SHAREMIND_LIBFMODAPI_CXX_MODULE_L1
-                    #endif
-                    );
-        #undef SHAREMIND_LIBFMODAPI_CXX_MODULE_L1
-    } catch (...) {
-        ::SharemindFacilityModule_free(m_c);
-        throw;
-    }
+    #define SHAREMIND_LIBFMODAPI_CXX_MODULE_L1 \
+        (void * m) noexcept { delete static_cast<FacilityModule *>(m); }
+    #if SHAREMIND_GCCPR55015
+    struct F { static void f SHAREMIND_LIBFMODAPI_CXX_MODULE_L1 };
+    #endif
+    ::SharemindFacilityModule_setTagWithDestructor(
+                m_c,
+                this,
+                #if SHAREMIND_GCCPR55015
+                &F::f
+                #else
+                []SHAREMIND_LIBFMODAPI_CXX_MODULE_L1
+                #endif
+                );
+    #undef SHAREMIND_LIBFMODAPI_CXX_MODULE_L1
 }
 
 } /* namespace sharemind { */
