@@ -197,8 +197,15 @@ public: /* Methods: */
     inline uint32_t apiVersionInUse() const noexcept
     { return ::SharemindFacilityModule_apiVersionInUse(m_c); }
 
-private: /* Methods: */
+protected: /* Methods: */
 
+    /**
+      \warning It is important to ensure that the destructor of this class or
+               any of its subclasses is only called via libfmodapi by means of
+               the tagging interface as used in FacilityModule constructor.
+               Subclasses should keep the virtual destructor either protected or
+               private and never call the destructors themselves.
+    */
     virtual inline ~FacilityModule() noexcept {}
 
 private: /* Fields: */
