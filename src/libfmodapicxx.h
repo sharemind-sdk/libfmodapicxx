@@ -39,6 +39,7 @@ using FacilityModuleApiError = ::SharemindFacilityModuleApiError;
 
 class FacilityModuleApi;
 class FacilityModule;
+class FacilityModulePis;
 
 
 /*******************************************************************************
@@ -225,6 +226,42 @@ private: /* Fields: */
 }; /* class FacilityModule { */
 
 /*******************************************************************************
+  FacilityModuleProcessInstances
+*******************************************************************************/
+
+class FacilityModulePis {
+
+public: /* Types: */
+
+    SHAREMIND_LIBFMODAPI_CXX_DEFINE_EXCEPTION(FacilityModulePis);
+
+public: /* Methods: */
+
+    FacilityModulePis() = delete;
+    FacilityModulePis(FacilityModulePis &&) = delete;
+    FacilityModulePis(FacilityModulePis const &) = delete;
+    FacilityModulePis & operator=(FacilityModulePis &&) = delete;
+    FacilityModulePis & operator=(FacilityModulePis const &) = delete;
+
+    FacilityModulePis(FacilityModuleApi & moduleApi,
+                      const SharemindProcessId & uniqueId);
+
+    virtual inline ~FacilityModulePis() noexcept {
+        if (m_c) {
+            if (::SharemindFacilityModulePis_tag(m_c) == this)
+                ::SharemindFacilityModulePis_releaseTag(m_c);
+            ::SharemindFacilityModulePis_destroy(m_c);
+        }
+    }
+
+    SHAREMIND_LIBFMODAPI_CXX_DEFINE_CPTR_GETTERS(FacilityModulePis)
+
+private: /* Fields: */
+    ::SharemindFacilityModulePis * m_c;
+
+}; /* class ProcessInstances { */
+
+/*******************************************************************************
   FacilityModuleApi
 *******************************************************************************/
 
@@ -233,6 +270,9 @@ class FacilityModuleApi {
     friend FacilityModule::FacilityModule(FacilityModuleApi &,
                                           char const * const,
                                           char const * const);
+    friend FacilityModulePis::FacilityModulePis(
+                FacilityModuleApi &,
+                const SharemindProcessId &);
 
 public: /* Types: */
 
@@ -314,6 +354,47 @@ private: /* Fields: */
 
 }; /* class FacilityModuleApi { */
 
+/*******************************************************************************
+  FacilityModuleProcessInstances methods
+*******************************************************************************/
+
+inline FacilityModulePis::FacilityModulePis(FacilityModuleApi & moduleApi,
+                                            const SharemindProcessId & uniqueId)
+        : m_c{[&moduleApi,&uniqueId]{
+            FacilityModuleApiError error;
+            char const * errorStr;
+            ::SharemindFacilityModulePis * const modPis =
+                ::SharemindFacilityModuleApi_newProcessInstance(moduleApi.m_c,
+                        uniqueId,
+                        &error,
+                        &errorStr);
+            if (modPis)
+                return modPis;
+            throw Exception{Detail::libfmodapi::allocThrow(error),
+                errorStr};
+            }()}
+    {
+        #define SHAREMIND_LIBFMODAPI_CXX_MODULEAPI_L1 \
+            (void * m) noexcept { \
+                FacilityModulePis * const modulePis = \
+                        static_cast<FacilityModulePis *>(m); \
+                modulePis->m_c = nullptr; \
+                delete modulePis; \
+            }
+        #if SHAREMIND_GCCPR55015
+        struct F { static void f SHAREMIND_LIBFMODAPI_CXX_MODULEAPI_L1 };
+        #endif
+        ::SharemindFacilityModulePis_setTagWithDestructor(
+                    m_c,
+                    this,
+                    #if SHAREMIND_GCCPR55015
+                    &F::f
+                    #else
+                    []SHAREMIND_LIBFMODAPI_CXX_MODULEAPI_L1
+                    #endif
+                    );
+        #undef SHAREMIND_LIBFMODAPI_CXX_MODULEAPI_L1
+    }
 
 /*******************************************************************************
   FacilityModule methods
