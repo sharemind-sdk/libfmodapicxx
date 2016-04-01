@@ -233,6 +233,8 @@ class FacilityModulePis {
 
 public: /* Types: */
 
+    using Context = SharemindFacilityModulePisContext;
+
     SHAREMIND_LIBFMODAPI_CXX_DEFINE_EXCEPTION(FacilityModulePis);
 
 public: /* Methods: */
@@ -243,8 +245,13 @@ public: /* Methods: */
     FacilityModulePis & operator=(FacilityModulePis &&) = delete;
     FacilityModulePis & operator=(FacilityModulePis const &) = delete;
 
-    FacilityModulePis(FacilityModuleApi & moduleApi,
-                      const SharemindProcessId & uniqueId);
+    FacilityModulePis(FacilityModuleApi & moduleApi)
+        : FacilityModulePis(moduleApi, nullptr)
+    {}
+
+    FacilityModulePis(FacilityModuleApi & moduleApi, Context & context)
+        : FacilityModulePis(moduleApi, &context)
+    {}
 
     virtual inline ~FacilityModulePis() noexcept {
         if (m_c) {
@@ -255,6 +262,10 @@ public: /* Methods: */
     }
 
     SHAREMIND_LIBFMODAPI_CXX_DEFINE_CPTR_GETTERS(FacilityModulePis)
+
+private: /* Methods: */
+
+    FacilityModulePis(FacilityModuleApi & moduleApi, Context * context);
 
 private: /* Fields: */
     ::SharemindFacilityModulePis * m_c;
@@ -270,9 +281,7 @@ class FacilityModuleApi {
     friend FacilityModule::FacilityModule(FacilityModuleApi &,
                                           char const * const,
                                           char const * const);
-    friend FacilityModulePis::FacilityModulePis(
-                FacilityModuleApi &,
-                const SharemindProcessId &);
+    friend class FacilityModulePis;
 
 public: /* Types: */
 
@@ -359,15 +368,15 @@ private: /* Fields: */
 *******************************************************************************/
 
 inline FacilityModulePis::FacilityModulePis(FacilityModuleApi & moduleApi,
-                                            const SharemindProcessId & uniqueId)
-        : m_c{[&moduleApi,&uniqueId]{
+                                            Context * context)
+        : m_c{[&moduleApi,context]{
             FacilityModuleApiError error;
             char const * errorStr;
             ::SharemindFacilityModulePis * const modPis =
                 ::SharemindFacilityModuleApi_newProcessInstance(moduleApi.m_c,
-                        uniqueId,
-                        &error,
-                        &errorStr);
+                                                                context,
+                                                                &error,
+                                                                &errorStr);
             if (modPis)
                 return modPis;
             throw Exception{Detail::libfmodapi::allocThrow(error),
