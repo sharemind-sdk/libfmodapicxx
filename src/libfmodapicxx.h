@@ -25,6 +25,7 @@
 #include <new>
 #include <sharemind/compiler-support/GccPR54526.h>
 #include <sharemind/compiler-support/GccPR55015.h>
+#include <sharemind/DebugOnly.h>
 #include <sharemind/libfmodapi/libfmodapi.h>
 #include <sharemind/libmodapi/libmodapicxx.h>
 
@@ -49,7 +50,7 @@ class FacilityModulePis;
 #define SHAREMIND_LIBFMODAPI_CXX_DEFINE_FACILITY_METHOD(ClassName,name,Name)\
     inline Facility const * find ## Name ## Facility( \
             char const * const signature) \
-            const noexcept __attribute__ ((nonnull(2))) \
+            const noexcept SHAREMIND_NDEBUG_ONLY(__attribute__ ((nonnull(2)))) \
     { \
         assert(signature); \
         return ::Sharemind ## ClassName ## _find ## Name ## Facility( \
@@ -169,7 +170,8 @@ public: /* Methods: */
 
     FacilityModule(FacilityModuleApi & moduleApi,
            char const * const filename,
-           char const * const configuration) __attribute__ ((nonnull(3)));
+           char const * const configuration)
+            SHAREMIND_NDEBUG_ONLY(__attribute__ ((nonnull(3))));
 
     SHAREMIND_LIBFMODAPI_CXX_DEFINE_CPTR_GETTERS(FacilityModule)
 
@@ -345,7 +347,7 @@ private: /* Methods: */
 
     ::SharemindFacilityModule & newModule(char const * const filename,
                                           char const * const configuration)
-            __attribute__((nonnull(2)))
+            SHAREMIND_NDEBUG_ONLY(__attribute__((nonnull(2))))
     {
         assert(filename);
         ::SharemindFacilityModule * const m =
