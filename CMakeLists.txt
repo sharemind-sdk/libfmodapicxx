@@ -17,54 +17,61 @@
 # For further information, please contact us at sharemind@cyber.ee.
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION "2.8.12")
-PROJECT(SHAREMIND_LIBFMODAPICXX "CXX")
-
-SET(LIBFMODAPICXX_VERSION "0.1.0.0")
-SET(LIBFMODAPICXX_COMPAT_VERSION "0.1.0.0")
+CMAKE_MINIMUM_REQUIRED(VERSION "3.0")
+PROJECT(SharemindLibFModapiCxx VERSION "0.1.0" LANGUAGES "CXX")
 
 INCLUDE("${CMAKE_CURRENT_SOURCE_DIR}/config.local" OPTIONAL)
 INCLUDE("${CMAKE_CURRENT_BINARY_DIR}/config.local" OPTIONAL)
+
+FIND_PACKAGE(SharemindCMakeHelpers REQUIRED)
+
+SharemindSetProjectVersion()
+SET(SharemindLibFModapiCxx_COMPAT_VERSION "${SharemindLibFModapiCxx_VERSION}")
 
 FIND_PACKAGE(SharemindCxxHeaders REQUIRED)
 FIND_PACKAGE(SharemindLibModapiCxx 0.3.0 REQUIRED)
 FIND_PACKAGE(SharemindLibFModapi 0.1.0 REQUIRED)
 
-SET(LIBFMODAPICXX_INSTALL_DEFINITIONS
+
+# Headers:
+FILE(GLOB_RECURSE SharemindLibFModapiCxx_HEADERS
+     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
+ADD_CUSTOM_TARGET("include_libfmodapicxx_headers_in_IDE"
+                  SOURCES ${SharemindLibFModapiCxx_HEADERS})
+INSTALL(FILES ${SharemindLibFModapiCxx_HEADERS}
+        DESTINATION "include/sharemind/libfmodapi"
+        COMPONENT "dev")
+
+# Install cmake files:
+SET(SharemindLibFModapiCxx_INSTALL_DEFINITIONS
     ${SharemindCxxHeaders_DEFINITIONS}
     ${SharemindLibModapiCxx_DEFINITIONS}
     ${SharemindLibFModapi_DEFINITIONS})
-LIST(REMOVE_DUPLICATES LIBFMODAPICXX_INSTALL_DEFINITIONS)
-SET(LIBFMODAPICXX_INSTALL_LINK_LIBRARIES
+LIST(REMOVE_DUPLICATES SharemindLibFModapiCxx_INSTALL_DEFINITIONS)
+SET(SharemindLibFModapiCxx_INSTALL_LINK_LIBRARIES
     ${SharemindCxxHeaders_LIBRARIES}
     ${SharemindLibModapiCxx_LIBRARIES}
     ${SharemindLibFModapi_LIBRARIES})
-LIST(REMOVE_DUPLICATES LIBFMODAPICXX_INSTALL_LINK_LIBRARIES)
-SET(LIBFMODAPICXX_INSTALL_INCLUDE_DIRS
+LIST(REMOVE_DUPLICATES SharemindLibFModapiCxx_INSTALL_LINK_LIBRARIES)
+SET(SharemindLibFModapiCxx_INSTALL_INCLUDE_DIRS
     "${CMAKE_INSTALL_PREFIX}/include"
     ${SharemindCxxHeaders_INCLUDE_DIRS}
     ${SharemindLibModapiCxx_INCLUDE_DIRS}
     ${SharemindLibFModapi_INCLUDE_DIRS})
-LIST(REMOVE_DUPLICATES LIBFMODAPICXX_INSTALL_INCLUDE_DIRS)
+LIST(REMOVE_DUPLICATES SharemindLibFModapiCxx_INSTALL_INCLUDE_DIRS)
+SharemindUseCMakeFindFiles()
 
-FILE(GLOB_RECURSE SHAREMIND_LIBFMODAPICXX_HEADERS
-     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
-ADD_CUSTOM_TARGET("include_libfmodapicxx_headers_in_IDE"
-                  SOURCES ${SHAREMIND_LIBFMODAPICXX_HEADERS})
-INSTALL(FILES ${SHAREMIND_LIBFMODAPICXX_HEADERS}
-        DESTINATION "include/sharemind/libfmodapi")
 
-# Install cmake files:
-FILE(GLOB_RECURSE sharemind_libfmodapicxx_in_files
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.in")
-ADD_CUSTOM_TARGET("include_sharemind_libfmodapicxx_in_files_in_IDE"
-                  SOURCES ${sharemind_libfmodapicxx_in_files})
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/SharemindLibfmodapiCxxConfig.cmake.in"
-               "${CMAKE_CURRENT_BINARY_DIR}/SharemindLibfmodapiCxxConfig.cmake"
-               @ONLY)
-CONFIGURE_FILE(
-    "${CMAKE_CURRENT_SOURCE_DIR}/SharemindLibfmodapiCxxConfigVersion.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/SharemindLibfmodapiCxxConfigVersion.cmake" @ONLY)
-INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/SharemindLibfmodapiCxxConfig.cmake"
-              "${CMAKE_CURRENT_BINARY_DIR}/SharemindLibfmodapiCxxConfigVersion.cmake"
-        DESTINATION "lib/SharemindLibfmodapiCxx")
+# Packaging:
+SharemindSetupPackaging()
+SharemindAddComponentPackage("dev"
+    NAME "libsharemind-fmodapi-cxx-dev"
+    DESCRIPTION "Sharemind Facility Module API C++ wrapper development headers"
+    DEB_SECTION "libdevel"
+    DEB_DEPENDS
+        "libsharemind-fmodapi-dev (>= 0.1.0)"
+        "libsharemind-modapi-cxx-dev (>= 0.3.0)"
+        "libsharemind-cxxheaders-dev"
+        "libstdc++-dev"
+)
+SharemindPackagingFinalize()

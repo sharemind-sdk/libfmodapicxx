@@ -18,11 +18,11 @@
 #
 
 # This file defines the following variables:
-#   SharemindLibfmodapiCxx_INCLUDE_DIRS - include directories
-#   SharemindLibfmodapiCxx_LIBRARIES    - libraries to link against
-#   SharemindLibfmodapiCxx_DEFINITIONS  - required compiler definitions
+#   SharemindLibFModapiCxx_INCLUDE_DIRS - include directories
+#   SharemindLibFModapiCxx_LIBRARIES    - libraries to link against
+#   SharemindLibFModapiCxx_DEFINITIONS  - required compiler definitions
 
 
-SET(SharemindLibfmodapiCxx_INCLUDE_DIRS @LIBFMODAPICXX_INSTALL_INCLUDE_DIRS@)
-SET(SharemindLibfmodapiCxx_LIBRARIES @LIBFMODAPICXX_INSTALL_LINK_LIBRARIES@)
-SET(SharemindLibfmodapiCxx_DEFINITIONS @LIBFMODAPICXX_INSTALL_DEFINITIONS@)
+SET(SharemindLibFModapiCxx_INCLUDE_DIRS @SharemindLibFModapiCxx_INSTALL_INCLUDE_DIRS@)
+SET(SharemindLibFModapiCxx_LIBRARIES @SharemindLibFModapiCxx_INSTALL_LINK_LIBRARIES@)
+SET(SharemindLibFModapiCxx_DEFINITIONS @SharemindLibFModapiCxx_INSTALL_DEFINITIONS@)
