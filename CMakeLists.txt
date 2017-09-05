@@ -26,7 +26,7 @@ INCLUDE("${CMAKE_CURRENT_BINARY_DIR}/config.local" OPTIONAL)
 FIND_PACKAGE(SharemindCMakeHelpers REQUIRED)
 
 SharemindSetProjectVersion()
-SET(SharemindLibFModapiCxx_COMPAT_VERSION "${SharemindLibFModapiCxx_VERSION}")
+
 
 FIND_PACKAGE(SharemindCxxHeaders REQUIRED)
 FIND_PACKAGE(SharemindLibModapiCxx 0.3.0 REQUIRED)
@@ -43,23 +43,21 @@ INSTALL(FILES ${SharemindLibFModapiCxx_HEADERS}
         COMPONENT "dev")
 
 # Install cmake files:
-SET(SharemindLibFModapiCxx_INSTALL_DEFINITIONS
-    ${SharemindCxxHeaders_DEFINITIONS}
-    ${SharemindLibModapiCxx_DEFINITIONS}
-    ${SharemindLibFModapi_DEFINITIONS})
-LIST(REMOVE_DUPLICATES SharemindLibFModapiCxx_INSTALL_DEFINITIONS)
-SET(SharemindLibFModapiCxx_INSTALL_LINK_LIBRARIES
-    ${SharemindCxxHeaders_LIBRARIES}
-    ${SharemindLibModapiCxx_LIBRARIES}
-    ${SharemindLibFModapi_LIBRARIES})
-LIST(REMOVE_DUPLICATES SharemindLibFModapiCxx_INSTALL_LINK_LIBRARIES)
-SET(SharemindLibFModapiCxx_INSTALL_INCLUDE_DIRS
-    "${CMAKE_INSTALL_PREFIX}/include"
-    ${SharemindCxxHeaders_INCLUDE_DIRS}
-    ${SharemindLibModapiCxx_INCLUDE_DIRS}
-    ${SharemindLibFModapi_INCLUDE_DIRS})
-LIST(REMOVE_DUPLICATES SharemindLibFModapiCxx_INSTALL_INCLUDE_DIRS)
-SharemindUseCMakeFindFiles()
+SharemindCreateCMakeFindFiles(
+    INCLUDE_DIRS
+        "${CMAKE_INSTALL_PREFIX}/include"
+        ${SharemindCxxHeaders_INCLUDE_DIRS}
+        ${SharemindLibModapiCxx_INCLUDE_DIRS}
+        ${SharemindLibFModapi_INCLUDE_DIRS}
+    DEFINITIONS
+        ${SharemindCxxHeaders_DEFINITIONS}
+        ${SharemindLibModapiCxx_DEFINITIONS}
+        ${SharemindLibFModapi_DEFINITIONS}
+    LIBRARIES
+        ${SharemindCxxHeaders_LIBRARIES}
+        ${SharemindLibModapiCxx_LIBRARIES}
+        ${SharemindLibFModapi_LIBRARIES}
+)
 
 
 # Packaging:
