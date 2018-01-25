@@ -105,7 +105,9 @@ public: /* Methods: */
     inline FacilityModuleApiExceptionBase(
             FacilityModuleApiError const errorCode,
             char const * const errorStr)
-        : m_errorCode{(assert(errorCode != ::SHAREMIND_FACILITY_MODULE_API_OK),
+        : m_errorCode{(static_cast<void>(
+                           assert(errorCode
+                                  != ::SHAREMIND_FACILITY_MODULE_API_OK)),
                        errorCode)}
         , m_errorStr{errorStr
                      ? errorStr
